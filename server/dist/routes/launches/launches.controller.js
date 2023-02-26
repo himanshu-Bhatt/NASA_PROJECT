@@ -1,6 +1,17 @@
-import { launches, addNewLaunch, _abortLaunch, } from "./../../models/launches.model.js";
-export const getAllLaunches = (req, res) => {
-    return res.status(200).json(Array.from(launches.values()));
+import { scheduleNewLaunch, _abortLaunch, getLaunch, } from "./../../models/launches.model.js";
+import { launchModel } from "../../models/launches.mongo.js";
+import { getPagination } from "../../services/query.js";
+export const getAllLaunches = async (req, res) => {
+    // console.log(req.query);
+    const { skip, limit } = getPagination(req.query);
+    // console.log(skip, limit);
+    return res
+        .status(200)
+        .json(await launchModel
+        .find({}, { _id: 0, __v: 0 })
+        .sort({ flightNumber: 1 })
+        .skip(skip)
+        .limit(limit));
 };
 export const postLaunch = (req, res) => {
     const launch = req.body;
@@ -18,16 +29,16 @@ export const postLaunch = (req, res) => {
             error: "Invalid date for the mission",
         });
     }
-    const res_launch = addNewLaunch(launch);
+    const res_launch = scheduleNewLaunch(launch);
     return res.status(201).json(res_launch);
 };
-export const abortLaunch = (req, res) => {
+export const abortLaunch = async (req, res) => {
     const id = Number(req.params.id);
     // console.log(req.params.id);
-    const launch = launches.get(id);
-    if (isNaN(launch.launchDate)) {
+    const launch = await getLaunch(id);
+    if (!launch) {
         //
-        return res.status(400).json({
+        return res.status(404).json({
             error: "Mission does not exist with this id",
         });
     }
@@ -43,6 +54,15 @@ export const abortLaunch = (req, res) => {
             error: "mission already concluded",
         });
     }
-    return res.status(200).json(_abortLaunch(id));
+    const aborted = await _abortLaunch(id);
+    if (!aborted) {
+        return res.status(200).json({
+            error: "Error occured while aborting",
+        });
+    }
+    // console.log(aborted);
+    return res.status(200).json({
+        ok: true,
+    });
 };
 //# sourceMappingURL=launches.controller.js.map

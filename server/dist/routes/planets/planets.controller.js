@@ -1,5 +1,5 @@
-import { result as planets } from "../../models/planets.model.js";
-export const getAllPlanets = (req, res) => {
-    return res.status(200).json(planets);
+import { getAllPlanets } from "../../models/planets.model.js";
+export const httpGetAllPlanets = (req, res) => {
+    return res.status(200).json(getAllPlanets());
 };
 //# sourceMappingURL=planets.controller.js.map

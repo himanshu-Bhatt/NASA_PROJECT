@@ -6,6 +6,7 @@ import { pipeline } from "node:stream";
 import fs from "fs";
 import { open } from "node:fs/promises";
 import { parse } from "csv-parse";
+import { planetModel } from "./planets.mongo.js";
 
 const result = [];
 
@@ -23,7 +24,7 @@ const isHabitablePlanet = (planet: {
     Number(planet["koi_prad"]) < 1.6
   );
 };
-
+let count = 0;
 function loadPlanets() {
   return new Promise<void>((resolve, reject) => {
     const readS = fs.createReadStream(
@@ -38,50 +39,48 @@ function loadPlanets() {
           columns: true,
         })
       )
-      .on("data", (data) => {
+      .on("data", async (data) => {
         // console.log(data);
         if (isHabitablePlanet(data)) {
-          result.push(data);
           // console.log(data);
+          count++;
+          savePlanet(data);
         }
       })
       .on("error", (err) => {
         console.error(err);
         reject();
       })
-      .on("end", () => {
-        console.log("finished reading");
+      .on("end", async () => {
+        const planetsCount: Number = (await getAllPlanets()).length;
+        console.log(`${planetsCount} planets found`);
+        console.log(`${count} planets found`);
         // console.log(result);
         resolve();
       });
   });
 }
 
-// (async () => {
-//   const readS = fs.createReadStream(
-//     "/home/himanshu/nodejs/node_course_ts/NASA_project/nasa-front-end/server/src/models/kepler_data.csv"
-//   );
+export const getAllPlanets = async () => {
+  return await planetModel.find({});
+};
 
-//   readS
-//     .pipe(
-//       parse({
-//         comment: "#",
-//         columns: true,
-//       })
-//     )
-//     .on("data", (chunk) => {
-//       if (isHabitablePlanet(chunk)) result.push(chunk);
-//     })
-//     .on("end", () => {
-//       console.log("finished reading");
-//       console.log(result);
-//     });
-// })();
+const savePlanet = async (planet: { kepler_name: String }) => {
+  try {
+    await planetModel.updateOne (
+      {
+        keplerName: planet.kepler_name,
+      },
+      {
+        keplerName: planet.kepler_name,
+      },
+      {
+        upsert: true,
+      }
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export { result, loadPlanets };
-// (async () => {
-//   // const readS = await open(__dirname + "/test.txt");
-//   const readS = fs.createReadStream(
-//     "/home/himanshu/nodejs/node_course_ts/NASA_project/nasa-front-end/server/src/models/kepler_data.csv"
-//   );
-// })();
-// export { result };

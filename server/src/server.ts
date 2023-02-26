@@ -1,9 +1,13 @@
+
+import { mongoConnect } from "./services/mongo.js";
 import http from "http";
+
 import mongoose from "mongoose";
 // const http = require("http");
 // const _app = require("./app.ts");
 import { app } from "./app.js";
 import { loadPlanets } from "./models/planets.model.js";
+import { launchData } from "./models/launches.model.js";
 // import "REQUEST,RESPONSE" from "@types/express";
 
 // import { app as _app } from "./app";
@@ -20,8 +24,9 @@ mongoose.connection.on("error", () => {
   console.error("Error while connecting to mongoDB");
 });
 async function startServer() {
-  mongoose.connect(MONGO_URL);
+  await mongoConnect();
   await loadPlanets();
+  await launchData();
   server.listen(PORT, () => {
     console.log(`Server running on ${PORT}`);
   });
