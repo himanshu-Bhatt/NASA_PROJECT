@@ -1,7 +1,9 @@
+import * as dotenv from "dotenv"
+dotenv.config()
 import mongoose from "mongoose";
 
-const MONGO_URL =
-  process.env.MONGO_URL;
+const MONGO_URL =  process.env.m;
+  
 const PORT = 8000;
 
 mongoose.connection.once("open", () => {

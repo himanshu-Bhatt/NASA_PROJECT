@@ -3,16 +3,9 @@ import { mongoConnect } from "./services/mongo.js";
 import http from "http";
 
 import mongoose from "mongoose";
-// const http = require("http");
-// const _app = require("./app.ts");
 import { app } from "./app.js";
 import { loadPlanets } from "./models/planets.model.js";
 import { launchData } from "./models/launches.model.js";
-// import "REQUEST,RESPONSE" from "@types/express";
-
-// import { app as _app } from "./app";
-const MONGO_URL =
-  "mongodb+srv://himanshu123:himanshu123@cluster0.9nbnp5o.mongodb.net/?retryWrites=true&w=majority";
 const PORT = 8000;
 
 const server = http.createServer(app);

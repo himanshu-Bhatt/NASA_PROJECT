@@ -1,5 +1,7 @@
+import * as dotenv from "dotenv";
+dotenv.config();
 import mongoose from "mongoose";
-const MONGO_URL = "mongodb+srv://himanshu123:himanshu123@cluster0.9nbnp5o.mongodb.net/?retryWrites=true&w=majority";
+const MONGO_URL = process.env.m;
 const PORT = 8000;
 mongoose.connection.once("open", () => {
     console.log("Connected to mongoDB");
